@@ -78,8 +78,12 @@ class AntColonyOptimizer:
                         break
 
                     ant.visit_node(next_node)
+                
+                if start_node in ant.current_node.neighbours.keys():
+                    ant.visit_node(start_node)
 
-                if len(ant.tour) == len(self.graph.nodes): # Проверяем, не зашел ли муравей в тупик
+                # Проверяем, не зашел ли муравей в тупик
+                if len(ant.tour) == len(self.graph.nodes) + 1 and ant.tour[-1] == start_node: 
                     all_ants_tours.append(ant)
                 
                     # Обновление лучшего маршрута
