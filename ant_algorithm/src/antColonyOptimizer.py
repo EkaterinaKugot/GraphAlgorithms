@@ -6,10 +6,20 @@ import networkx as nx
 
 
 class AntColonyOptimizer:
-    def __init__(self, graph: Graph, num_ants: int, evaporation_rate: float, a: float, b: float, max_stagnation: int = 10):
+    def __init__(
+        self,
+        graph: Graph,
+        num_ants: int,
+        evaporation_rate: float,
+        a: float,
+        b: float,
+        max_stagnation: int = 10,
+        difference: float = 0.
+    ):
         if not isinstance(graph, Graph) or not isinstance(num_ants, int) or \
             not isinstance(evaporation_rate, float) or not isinstance(a, float) or \
-                not isinstance(b, float) or not isinstance(max_stagnation, int):
+                not isinstance(b, float) or not isinstance(max_stagnation, int) or \
+                    not isinstance(difference, float):
                 raise TypeError("Неверный тип данных")
         
         self.graph = graph
@@ -22,6 +32,8 @@ class AntColonyOptimizer:
         self.stagnation_count = 0
         self.max_stagnation = max_stagnation  # Максимальное количество итераций без улучшения
         self.total_iterations = 0
+        self.all_tours = []
+        self.difference = difference
         
         self.G = nx.Graph()
 
@@ -88,12 +100,15 @@ class AntColonyOptimizer:
                 
                     # Обновление лучшего маршрута
                     if ant.total_distance < self.best_distance:
+                        if self.best_distance - ant.total_distance <= self.difference:
+                            self.stagnation_count += 1
                         self.best_distance = ant.total_distance
                         self.best_tour = ant.tour
                         self.stagnation_count = 0  # Сброс счетчика стагнации
                     else:
                         self.stagnation_count += 1
 
+                    self.all_tours.append(self.best_distance)
                     self.total_iterations += 1
 
             # Обновление феромонов на основе маршрутов
@@ -111,7 +126,7 @@ class AntColonyOptimizer:
                 
                 plt.title(f"Iteration {self.total_iterations}: Best distance: {self.best_distance}")
                 plt.pause(1)
-
+                
             # Проверка условия остановки
             if self.stagnation_count >= self.max_stagnation:
                 break
