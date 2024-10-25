@@ -87,7 +87,7 @@ class Graph:
     
     # Загрузка графа из файла
     @staticmethod
-    def load_from_file(file_path: str) -> 'Graph':
+    def load_from_file(file_path: str, split: str = None) -> 'Graph':
         if not isinstance(file_path, str) :
                 raise TypeError("Неверный тип данных")
         
@@ -96,7 +96,10 @@ class Graph:
         with open(file_path, 'r') as file:
             next(file)
             for line in file:
-                source, target, weight = line.strip().split()
+                if split is not None:
+                    source, target, weight = line.strip().split(split)
+                else:
+                    source, target, weight = line.strip().split()
                 weight = float(weight)
 
                 source_node = graph.get_node_by_name(source)

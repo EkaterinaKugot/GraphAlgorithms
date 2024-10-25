@@ -9,12 +9,12 @@ class AntColonyOptimizer:
     def __init__(
         self,
         graph: Graph,
-        num_ants: int,
         evaporation_rate: float,
         a: float,
         b: float,
         max_stagnation: int = 10,
-        difference: float = 0.
+        difference: float = 0.,
+        num_ants: int = 1,
     ):
         if not isinstance(graph, Graph) or not isinstance(num_ants, int) or \
             not isinstance(evaporation_rate, float) or not isinstance(a, float) or \
@@ -111,14 +111,11 @@ class AntColonyOptimizer:
                     self.all_tours.append(self.best_distance)
                     self.total_iterations += 1
 
-            # Обновление феромонов на основе маршрутов
-            for ant in all_ants_tours:
-                delta_pheromone = 1 / ant.total_distance if ant.total_distance > 0 else 0
-                for i in range(len(ant.tour) - 1):
-                    self.graph.update_pheromone(ant.tour[i], ant.tour[i + 1], delta_pheromone, self.evaporation_rate)
-
-            # Испарение феромонов
-            self.graph.evaporate_pheromones(self.evaporation_rate)
+                # Обновление феромонов на основе маршрутов
+                for ant in all_ants_tours:
+                    delta_pheromone = 1 / ant.total_distance if ant.total_distance > 0 else 0
+                    for i in range(len(ant.tour) - 1):
+                        self.graph.update_pheromone(ant.tour[i], ant.tour[i + 1], delta_pheromone, self.evaporation_rate)
 
             # Визуализация
             if show and self.best_tour is not None:
