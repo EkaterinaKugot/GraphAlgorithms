@@ -1,0 +1,9 @@
+{
+    "filename": "1000.txt",
+    "separator": "",
+    "evaporation_rate": 0.5,
+    "a": 3.0,
+    "b": 2.0,
+    "max_stagnation": 500,
+    "difference": 1.0
+}

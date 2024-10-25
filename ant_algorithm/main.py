@@ -1,15 +1,21 @@
 from src.graph import Graph
 from src.antColonyOptimizer import AntColonyOptimizer
 import matplotlib.pyplot as plt
+import json
 
+# Загрузка параметров из конфигурационного файла
+with open('config.json', 'r') as config_file:
+    config = json.load(config_file)
 
-graph = Graph.load_from_file('synthetic.txt', ",")
+filename = config['filename']
+separator = config['separator']
+graph = Graph.load_from_file(filename, separator)
 
-evaporation_rate = 0.0  # Скорость испарения феромонов
-a = 3.0
-b = 2.0
-max_stagnation = 600
-difference = 1.
+evaporation_rate = config['evaporation_rate']  # Скорость испарения феромонов
+a = config['a']
+b = config['b']
+max_stagnation = config['max_stagnation']
+difference = config['difference']
 show = False # Визуализация (не доделана)
 
 aco = AntColonyOptimizer(graph, evaporation_rate, a, b, max_stagnation, difference)

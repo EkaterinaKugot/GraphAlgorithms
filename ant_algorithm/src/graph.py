@@ -96,7 +96,7 @@ class Graph:
         with open(file_path, 'r') as file:
             next(file)
             for line in file:
-                if split is not None:
+                if split is not None and split != "":
                     source, target, weight = line.strip().split(split)
                 else:
                     source, target, weight = line.strip().split()
