@@ -16,10 +16,9 @@ a = config['a']
 b = config['b']
 max_stagnation = config['max_stagnation']
 difference = config['difference']
-show = False # Визуализация (не доделана)
 
 aco = AntColonyOptimizer(graph, evaporation_rate, a, b, max_stagnation, difference)
-best_tour, best_distance, total_iterations = aco.optimize(show=show)
+best_tour, best_distance, total_iterations = aco.optimize()
 
 print("Лучший найденный гамильтонов цикл:", [node.name for node in best_tour])
 print("Длина лучшего цикла:", best_distance)

@@ -4,6 +4,6 @@
     "evaporation_rate": 0.5,
     "a": 3.0,
     "b": 2.0,
-    "max_stagnation": 600,
+    "max_stagnation": 700,
     "difference": 1.0
 }
