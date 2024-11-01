@@ -25,7 +25,6 @@ print("Лучший найденный гамильтонов цикл:", [node.
 print("Длина лучшего цикла:", best_distance)
 print("Количество итераций:", total_iterations)
 
-# print(aco.all_tours)
 x = list(range(len(aco.all_tours)))
 
 plt.plot(x, aco.all_tours, linestyle='-', color='b') 
