@@ -1,202 +1,122 @@
-import numpy as np
-from numpy.typing import NDArray
+import pygame
+from alpha_beta import AlphaBeta
 
-ROWS = 6
-COLS = 7
-WINNING_LENGTH = 4
+# Константы
+WIDTH = 700
+HEIGHT = 700
+SQUARESIZE = 100
+RADIUS = int(SQUARESIZE / 2 - 5)
+CHIP_RADIUS = RADIUS - 4
 
-def create_board() -> NDArray:
-    # СОздание пустого поля
-    return np.zeros((ROWS, COLS))
+# Цвета
+FIELD = (131, 84, 31)
+BG = (183, 235, 247)
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+BLACK = (0, 0, 0)
 
-def is_valid_location(board: NDArray, col: int):
-    # Поверка, заполнена ли колонка
-    return board[ROWS - 1][col] == 0
+pygame.init()
 
-def get_next_open_row(board: NDArray, col: int):
-    # Определение места заполнения
-    for r in range(ROWS):
-        if board[r][col] == 0:
-            return r
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("4 в ряд")
 
-def drop_piece(board: NDArray, row: int, col: int, piece: int):
-    # Присвоение клекти поля значения
-    board[row][col] = piece
 
-def winning_move(board: NDArray, piece: int):
-    # Проверка горизонтальных, вертикальных и диагональных побед
-    for c in range(COLS - 3):
-        for r in range(ROWS):
-            if all(board[r][c+i] == piece for i in range(WINNING_LENGTH)):
-                return True
-
-    for c in range(COLS):
-        for r in range(ROWS - 3):
-            if all(board[r+i][c] == piece for i in range(WINNING_LENGTH)):
-                return True
-
-    for c in range(COLS - 3):
-        for r in range(ROWS - 3):
-            if all(board[r+i][c+i] == piece for i in range(WINNING_LENGTH)):
-                return True
-
-    for c in range(COLS - 3):
-        for r in range(3, ROWS):
-            if all(board[r-i][c+i] == piece for i in range(WINNING_LENGTH)):
-                return True
-
-    return False
-
-def evaluate_window(window: list, piece: int):
-    # Оценка окна
-    score = 0
-    opponent_piece = 2 if piece == 1 else 1
-    if window.count(piece) == 4:
-        score += 10000
-    elif window.count(piece) == 3 and window.count(0) >= 1:
-        score += 500
-    elif window.count(piece) == 2 and window.count(0) >= 2:
-        score += 10
-    elif window.count(piece) == 1 and window.count(0) >= 3:
-        score += 1
-    if window.count(opponent_piece) == 3 and window.count(0) >= 1:
-        score -= 1000
-    return score
-
-def score_position(board: NDArray, piece: int):
-    score = 0
+def draw_board(board, cols: int, rows: int):
+    # Отрисовка поля
+    for c in range(cols):
+        for r in range(rows):
+            pygame.draw.rect(screen, FIELD, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
+            pygame.draw.circle(screen, BG, (int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
     
-    # Оценка горизонтальных окна
-    for r in range(ROWS):
-        row_array = [int(i) for i in list(board[r])]
-        for c in range(COLS - 3):
-            window = row_array[c:c + WINNING_LENGTH]
-            score += evaluate_window(window, piece)
+    for c in range(cols):
+        for r in range(rows):
+            if board[r][c] == 1:
+                pygame.draw.circle(screen, BLACK, (int(c * SQUARESIZE + SQUARESIZE / 2), HEIGHT - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+                pygame.draw.circle(screen, RED, (int(c * SQUARESIZE + SQUARESIZE / 2), HEIGHT - int(r * SQUARESIZE + SQUARESIZE / 2)), CHIP_RADIUS)
+            elif board[r][c] == 2:
+                pygame.draw.circle(screen, BLACK, (int(c * SQUARESIZE + SQUARESIZE / 2), HEIGHT - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+                pygame.draw.circle(screen, YELLOW, (int(c * SQUARESIZE + SQUARESIZE / 2), HEIGHT - int(r * SQUARESIZE + SQUARESIZE / 2)), CHIP_RADIUS)
 
-    # Оценка вертикальных окна
-    for c in range(COLS):
-        col_array = [int(board[r][c]) for r in range(ROWS)]
-        for r in range(ROWS - 3):
-            window = col_array[r:r + WINNING_LENGTH]
-            score += evaluate_window(window, piece)
 
-    # Оценка диагональных окна (слева направо)
-    for r in range(ROWS - 3):
-        for c in range(COLS - 3):
-            window = [board[r + i][c + i] for i in range(WINNING_LENGTH)]
-            score += evaluate_window(window, piece)
-
-    # Оценка диагональных окна (справа налево)
-    for r in range(ROWS - 3):
-        for c in range(3, COLS):
-            window = [board[r + i][c - i] for i in range(WINNING_LENGTH)]
-            score += evaluate_window(window, piece)
-
-    return score
-
-def alpha_beta(
-        board: NDArray, 
-        depth: int, 
-        alpha: float, 
-        beta: float, 
-        maximizing_player: bool
-    ) -> list[int, int]:
-    valid_locations = [c for c in range(COLS) if is_valid_location(board, c)]
-    
-    is_stop = winning_move(board, 1) or winning_move(board, 2) or len(valid_locations) == 0
-    
-    if depth == 0 or is_stop:
-        if is_stop:
-            if winning_move(board, 1):
-                return (None, float('inf'))
-            elif winning_move(board, 2):
-                return (None, float('-inf'))
-            else: 
-                return (None, 0)
-        else:
-            return (None, score_position(board, 1))
-
-    if maximizing_player:
-        value = float('-inf')
-        column = valid_locations[0]
-        for col in valid_locations:
-            row = get_next_open_row(board, col)
-            temp_board = board.copy()
-            drop_piece(temp_board, row, col, 1)
-            new_score = alpha_beta(temp_board, depth-1, alpha, beta, False)[1]
-            if new_score > value:
-                value = new_score
-                column = col
-            alpha = max(alpha, value)
-            if beta <= alpha:
-                break
-        return column, value
-    
+def display_winner(player: int):
+    # Отображение сообщения о победителе
+    text = ""
+    if player == 2:
+        text = "Игрок"
     else: 
-        value = float('inf')
-        column = valid_locations[0]
-        for col in valid_locations:
-            row = get_next_open_row(board, col)
-            temp_board = board.copy()
-            drop_piece(temp_board, row, col, 2)
-            new_score = alpha_beta(temp_board, depth-1, alpha, beta, True)[1]
-            if new_score < value:
-                value = new_score
-                column = col
-            beta = min(beta, value)
-            if beta <= alpha:
-                break
-        return column, value
+        text = "Компьютер"
+    font = pygame.font.SysFont("monospace", 75)
+    font.set_bold(True)
+    label = font.render(text, True, BLACK)
+    screen.blit(label, (WIDTH // 6, HEIGHT // 3))
+    label1 = font.render("победил!", True, BLACK)
+    screen.blit(label1, (WIDTH // 6, HEIGHT // 2))
 
-def print_board(board):
-    # Вывод поля
-    tags = [1, 2, 3, 4, 5, 6, 7]
-    print(np.flip(board, 0))
-    print(" ", tags)
 
-def play_game(depth):
-    board = create_board()
+def play_game(depth: int):
+    ab = AlphaBeta()
     game_over = False
-    
-    while not game_over:
-        # Ход игрока (человека)
-        while True: 
-            print_board(board)
-            try:
-                col = int(input("Игрок, выберите колонку (1-7): "))
-                col -= 1
-                
-                if is_valid_location(board, col):
-                    row = get_next_open_row(board, col)
-                    drop_piece(board, row, col, 1)
-                    break
-                else:
-                    print("Недопустимый ход. Попробуйте еще раз.")
-                    
-            except:
-                print("Пожалуйста введите число от 1 до 7.")
+    is_break = False
+    turn = 0
 
-        if winning_move(board, 1):
-            print_board(board)
-            print("Игрок выиграл!")
-            game_over = True
-            break
+    pygame.draw.rect(screen, BG, (0, 0, WIDTH, SQUARESIZE))
+
+    while not game_over:
+        draw_board(ab.board, ab.cols, ab.rows)
+        pygame.display.update()
+
+        if turn == 1:
+            col, _ = ab.alpha_beta(ab.board, depth=depth)
+            if ab.is_valid_location(ab.board, col):
+                row = ab.get_next_open_row(ab.board, col)
+                ab.drop_piece(ab.board, row, col, 2)
+
+                if ab.winning_move(ab.board, 2):
+                    print("Компьютер выиграл!")
+                    game_over = True
+
+                turn += 1
+                turn %= 2
         
-        # Ход компьютера
-        while True: 
-            print("Компьютер делает ход...")
-            col, score = alpha_beta(board, depth=depth, alpha=float('-inf'), beta=float('inf'), maximizing_player=False)
-            if is_valid_location(board, col):
-                row = get_next_open_row(board, col)
-                drop_piece(board, row, col, 2)
-                print("Компьютер сходил в колонку:", col+1)
-                break
-        
-        if winning_move(board, 2):
-            print_board(board)
-            print("Компьютер выиграл!")
-            game_over = True 
-            break
+        if turn == 0:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    game_over = True
+                    is_break = True
+
+                if event.type == pygame.MOUSEMOTION:
+                    pygame.draw.rect(screen, BG, (0, 0, WIDTH, SQUARESIZE))
+                    posx = event.pos[0]
+                    if turn == 0:
+                        pygame.draw.circle(screen, RED, (posx, int(SQUARESIZE / 2)), RADIUS)
+                pygame.display.update()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pygame.draw.rect(screen, BG, (0, 0, WIDTH, SQUARESIZE))
+                    # Позиция курсора мыши
+                    posx = event.pos[0]
+                    col = int(posx // SQUARESIZE)
+
+                    if ab.is_valid_location(ab.board, col):
+                        row = ab.get_next_open_row(ab.board, col)
+                        ab.drop_piece(ab.board, row, col, 1)
+
+                        if ab.winning_move(ab.board, 1):
+                            print("Игрок выиграл!")
+                            game_over = True
+
+                        turn += 1
+                        turn %= 2
+            
+        if game_over:
+            draw_board(ab.board, ab.cols, ab.rows)
+            display_winner(turn + 1)
+            pygame.display.update()
+
+            while not is_break:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        is_break = True
 
 if __name__ == "__main__":
     depth = 6
