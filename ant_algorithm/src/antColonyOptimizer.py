@@ -60,11 +60,12 @@ class AntColonyOptimizer:
                 
                     # Обновление лучшего маршрута
                     if ant.total_distance < self.best_distance:
-                        if self.best_distance - ant.total_distance <= self.difference:
-                            self.stagnation_count += 1
                         self.best_distance = ant.total_distance
                         self.best_tour = ant.tour
-                        self.stagnation_count = 0  # Сброс счетчика стагнации
+                        if abs(self.best_distance - ant.total_distance) <= self.difference:
+                            self.stagnation_count += 1
+                        else:
+                            self.stagnation_count = 0  # Сброс счетчика стагнации
                     else:
                         self.stagnation_count += 1
 

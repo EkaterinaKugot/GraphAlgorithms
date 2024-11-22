@@ -45,7 +45,10 @@ class Ant:
         for neighbour in unvisited_neighbours:
             pheromone_level = self.graph.get_pheromone_level(self.current_node, neighbour) # rij
             distance = self.current_node.neighbours[neighbour] # dij - вес ребра мужде узлами i и j 
-            attractiveness = 1 / distance  # Привлекательность nij, как 1/dij
+            if distance == 0:
+                attractiveness = 1 + 0.000001
+            else:
+                attractiveness = 1 / distance  # Привлекательность nij, как 1/dij
             
             probability = (pheromone_level ** a) * (attractiveness ** b) # (rij^a) * (nij^b)
             probabilities.append(probability)
