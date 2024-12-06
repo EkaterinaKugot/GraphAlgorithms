@@ -1,9 +1,9 @@
 {
     "filename": "synthetic.txt",
     "separator": ",",
-    "evaporation_rate": 0.5,
-    "a": 3.0,
-    "b": 2.0,
-    "max_stagnation": 700,
+    "evaporation_rate": 0.0,
+    "a": 2.0,
+    "b": 1.0,
+    "max_stagnation": 5000,
     "difference": 1.0
 }

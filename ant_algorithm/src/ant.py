@@ -39,7 +39,7 @@ class Ant:
         if not unvisited_neighbours:
             return None  # Все узлы посещены
         
-        total_probability = 0.0
+        # total_probability = 0.0
         probabilities = []
 
         for neighbour in unvisited_neighbours:
@@ -52,9 +52,9 @@ class Ant:
             
             probability = (pheromone_level ** a) * (attractiveness ** b) # (rij^a) * (nij^b)
             probabilities.append(probability)
-            total_probability += probability # Е((rij^a)*(nij^b))
+            # total_probability += probability # Е((rij^a)*(nij^b))
 
         # pij = (rij^a) * (nij^b) / Е((rij^a) * (nij^b))
-        probabilities = [p / total_probability for p in probabilities]
+        # probabilities = [p / total_probability for p in probabilities]
         
         return random.choices(unvisited_neighbours, weights=probabilities)[0]

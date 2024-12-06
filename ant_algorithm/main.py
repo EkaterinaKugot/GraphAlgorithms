@@ -1,6 +1,6 @@
 from src.graph import Graph
 from src.antColonyOptimizer import AntColonyOptimizer
-import matplotlib.pyplot as plt
+from src.plot import create_plot
 import json
 
 # Загрузка параметров из конфигурационного файла
@@ -20,16 +20,11 @@ difference = config['difference']
 aco = AntColonyOptimizer(graph, evaporation_rate, a, b, max_stagnation, difference)
 best_tour, best_distance, total_iterations = aco.optimize()
 
-print("Лучший найденный гамильтонов цикл:", [node.name for node in best_tour])
-print("Длина лучшего цикла:", best_distance)
-print("Количество итераций:", total_iterations)
+if not aco.has_cycle:
+    print("Цикл не найден!")
+else:
+    print("Лучший найденный гамильтонов цикл:", [node.name for node in best_tour])
+    print("Длина лучшего цикла:", best_distance)
+    print("Количество итераций:", total_iterations)
 
-x = list(range(len(aco.all_tours)))
-
-plt.plot(x, aco.all_tours, linestyle='-', color='b') 
-
-plt.title('Длина пути на каждой итерации')
-plt.xlabel('Итерация')
-plt.ylabel('Длина пути')
-
-plt.show()
+    create_plot(aco)

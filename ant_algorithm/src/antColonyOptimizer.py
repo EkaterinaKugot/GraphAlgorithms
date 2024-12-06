@@ -1,8 +1,6 @@
 from src.graph import Graph
 from src.ant import Ant
 import random
-import matplotlib.pyplot as plt
-import networkx as nx
 
 
 class AntColonyOptimizer:
@@ -32,11 +30,14 @@ class AntColonyOptimizer:
         self.stagnation_count = 0
         self.max_stagnation = max_stagnation  # Максимальное количество итераций без улучшения
         self.total_iterations = 0
+        self.best_all_tours = []
         self.all_tours = []
         self.difference = difference
+        self.has_cycle = True
 
     # Поиск лучшего пути
     def optimize(self):
+        count_iter = 0
         while True:
 
             for _ in range(self.num_ants):
@@ -69,16 +70,21 @@ class AntColonyOptimizer:
                     else:
                         self.stagnation_count += 1
 
-                    self.all_tours.append(self.best_distance)
+                    self.best_all_tours.append(self.best_distance)
+                    self.all_tours.append(ant.total_distance)
                     self.total_iterations += 1
 
                     # Обновление феромонов на основе маршрутов
                     delta_pheromone = 1 / ant.total_distance if ant.total_distance > 0 else 0
                     for i in range(len(ant.tour) - 1):
                         self.graph.update_pheromone(ant.tour[i], ant.tour[i + 1], delta_pheromone, self.evaporation_rate)
+                else:
+                    count_iter += 1
                 
             # Проверка условия остановки
-            if self.stagnation_count >= self.max_stagnation:
+            if self.stagnation_count >= self.max_stagnation or count_iter >= self.max_stagnation:
+                if count_iter >= self.max_stagnation:
+                    self.has_cycle = False
                 break
 
         return self.best_tour, self.best_distance, self.total_iterations
