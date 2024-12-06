@@ -1,6 +1,6 @@
 from src.graph import Graph
 from src.antColonyOptimizer import AntColonyOptimizer
-from src.plot import create_plot
+from src.plot import *
 import json
 
 # Загрузка параметров из конфигурационного файла
@@ -27,4 +27,6 @@ else:
     print("Длина лучшего цикла:", best_distance)
     print("Количество итераций:", total_iterations)
 
-    create_plot(aco)
+    plot = Plot(aco)
+    plot.create_all_plot()
+    

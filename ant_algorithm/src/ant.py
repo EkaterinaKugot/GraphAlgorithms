@@ -12,6 +12,7 @@ class Ant:
         self.current_node = None
         self.tour = []
         self.total_distance = 0.0
+        self.amount_pheromones = 0
 
     # Посещение узла муравьем
     def visit_node(self, node: Node) -> None:
@@ -23,6 +24,9 @@ class Ant:
             self.total_distance += weight
         self.tour.append(node)
         self.current_node = node
+    
+    def update_amount_pheromones(self, begin: Node, end: Node):
+        self.amount_pheromones += self.graph.get_pheromone_level(begin, end)
 
     # Выбрать следующий узел из соседей
     def choose_next_node(self, a: float, b: float) -> Node:
@@ -52,9 +56,6 @@ class Ant:
             
             probability = (pheromone_level ** a) * (attractiveness ** b) # (rij^a) * (nij^b)
             probabilities.append(probability)
-            # total_probability += probability # Е((rij^a)*(nij^b))
-
-        # pij = (rij^a) * (nij^b) / Е((rij^a) * (nij^b))
-        # probabilities = [p / total_probability for p in probabilities]
         
-        return random.choices(unvisited_neighbours, weights=probabilities)[0]
+        next_node = random.choices(unvisited_neighbours, weights=probabilities)[0]
+        return next_node
