@@ -74,9 +74,7 @@ class AntColonyOptimizer:
                     else:
                         tmp_amount_pheromones = 0
                         for idx in range(1, len(self.best_tour)):
-                            if idx == 0:
-                                continue
-                        tmp_amount_pheromones += self.graph.get_pheromone_level(self.best_tour[idx-1], self.best_tour[idx])
+                            tmp_amount_pheromones += self.graph.get_pheromone_level(self.best_tour[idx-1], self.best_tour[idx])
 
                         self.amount_pheromones_best_tour.append(tmp_amount_pheromones)
                         self.stagnation_count += 1

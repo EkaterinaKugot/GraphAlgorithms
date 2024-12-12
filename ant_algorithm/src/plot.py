@@ -41,6 +41,6 @@ class Plot:
 
         plt.plot(x, self.aco.amount_pheromones_best_tour, linestyle='-', color='b') 
 
-        plt.title('Кол. феромнов на лучшем пути на каждой итерации')
+        plt.title('Кол. феромонов на лучшем пути на каждой итерации')
         plt.xlabel('Итерация')
         plt.ylabel('Кол. феромнов')
