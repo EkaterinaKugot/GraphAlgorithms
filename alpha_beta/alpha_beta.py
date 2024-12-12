@@ -171,14 +171,6 @@ class AlphaBeta:
         else: 
             value = float('inf')
             column = valid_locations[0]
-
-            # Проверка на выигрышный ход для компьютера
-            for col in valid_locations:
-                row = self.get_next_open_row(board, col)
-                temp_board = board.copy()
-                self.drop_piece(temp_board, row, col, 2)
-                if self.winning_move(temp_board, 2):
-                    return col, float('-inf')
             
             for col in valid_locations:
                 row = self.get_next_open_row(board, col)
@@ -192,4 +184,24 @@ class AlphaBeta:
                 if beta <= alpha:
                     break
             return column, value
+        
+    def check_winning_move(self, board: NDArray):
+        valid_locations = [c for c in range(self.cols) if self.is_valid_location(board, c)]
+
+        block = -1
+        # Проверка на выигрышный ход для компьютера или игрока
+        for col in valid_locations:
+            row = self.get_next_open_row(board, col)
+
+            temp_board = board.copy()
+            self.drop_piece(temp_board, row, col, 2)
+            if self.winning_move(temp_board, 2):
+                return col
+            
+            temp_board = board.copy()
+            self.drop_piece(temp_board, row, col, 1)
+            if self.winning_move(temp_board, 1):
+                block = col
+
+        return block
 
