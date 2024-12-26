@@ -6,7 +6,7 @@ class Node:
             raise TypeError("Неверный тип данных")
         
         self.name = name
-        self.neighbours: dict = {}
+        self.neighbours: dict[Node, int] = {}
 
     # Добавить соседа
     def add_neighbour(self, neighbour: 'Node', weight: float = 0.) -> None:

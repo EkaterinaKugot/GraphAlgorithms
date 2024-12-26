@@ -153,6 +153,7 @@ class AlphaBeta:
                 return (None, self._score_position(board, 1))
 
         if maximizing_player:
+            # print("depth:", depth)
             value = float('-inf')
             column = valid_locations[0]
             for col in valid_locations:
@@ -160,15 +161,20 @@ class AlphaBeta:
                 temp_board = board.copy()
                 self.drop_piece(temp_board, row, col, 1)
                 new_score = self.alpha_beta(temp_board, depth-1, alpha, beta, False)[1]
+                # print("new_score, value: ", new_score, value)
                 if new_score > value:
                     value = new_score
                     column = col
+                # print("alpha:", alpha)
                 alpha = max(alpha, value)
+                # print("alpha, beta: ", alpha, beta)
                 if beta <= alpha:
                     break
+            # print(column, value)
             return column, value
         
         else: 
+            # print("depth:", depth)
             value = float('inf')
             column = valid_locations[0]
             
@@ -177,12 +183,16 @@ class AlphaBeta:
                 temp_board = board.copy()
                 self.drop_piece(temp_board, row, col, 2)
                 new_score = self.alpha_beta(temp_board, depth-1, alpha, beta, True)[1]
+                # print("new_score, value: ", new_score, value)
                 if new_score < value:
                     value = new_score
                     column = col
+                # print("beta:", beta)
                 beta = min(beta, value)
+                # print("alpha, beta: ", alpha, beta)
                 if beta <= alpha:
                     break
+            # print(column, value)
             return column, value
         
     def check_winning_move(self, board: NDArray):
@@ -204,4 +214,7 @@ class AlphaBeta:
                 block = col
 
         return block
+    
+    def check_draw(self, board: NDArray):
+        return 0 in board
 

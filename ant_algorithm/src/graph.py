@@ -3,7 +3,7 @@ from src.node import Node
 
 class Graph:
     def __init__(self) -> None:
-        self.nodes: dict = {}
+        self.nodes: dict[str, Node] = {}
         self.pheromones: dict = {} # словарь с rij - количество феромонов на дуге i, j
 
     # Получение уровня феромонов между узлами
@@ -22,14 +22,86 @@ class Graph:
         current_level = self.get_pheromone_level(begin, end)
         new_level = (1 - evaporation_rate) * current_level + delta_pheromone # rij = (1-p)*rij + дельта rij
         self.pheromones[(begin, end)] = new_level
+    
+    def check_has_cycle(self) -> bool:
+        n = len(self.nodes)
+        node_list = list(self.nodes.values())
+        for i, v in enumerate(node_list):
+            for w in node_list[i+1:]:
+                if w not in v.neighbours.keys() and v not in w.neighbours.keys():
+                    if len(v.neighbours) + len(w.neighbours) >= n:
+                        return True
+        return False
+    
+    def create_cycle(self) -> int:
+        n = len(self.nodes)    
+        count_edge = 0
+        count_v = 0
+        node_list = list(self.nodes.values())# Сортируем вершины по количеству соседей (по возрастанию)
+        node_list.sort(key=lambda node: len(node.neighbours))
 
-    # Испарение феромонов
-    def evaporate_pheromones(self, evaporation_rate: float) -> None:
-        if not isinstance(evaporation_rate, float):
-                raise TypeError("Неверный тип данных")
+        for v in node_list:
+            count_v += 1
+            for w in node_list:
+                if v == w:
+                    continue
+                if w not in v.neighbours.keys():
+                    if len(v.neighbours) + len(w.neighbours) < n:
+                        self.add_edge(v, w, 1.0)
+                        count_edge += 1
+                        if self.check_has_cycle():
+                                return count_edge, count_v
+                # if v not in w.neighbours.keys():
+                #     self.add_edge(w, v, 1.0)
+                #     count_edge += 1
+                #     if self.check_has_cycle():
+                #              return count_edge
+            # print(v)
+        return count_edge, count_v
+    
+    def create_ham_cycle(self) -> int:   
+        node_list = list(self.nodes.values())
+        node_list.sort(key=lambda node: len(node.neighbours), reverse=True)
+        node_dict = {node: True for node in node_list}
+
+        all_tours = []
         
-        for key in list(self.pheromones.keys()):
-            self.pheromones[key] *= (1 - evaporation_rate)
+        for node, v in node_dict.items(): 
+            if not v:
+                continue   
+
+            tour = []
+            
+            def find_tour(node: Node) -> bool:
+                node_dict[node] = False
+                tour.append(node)
+
+                node_neighbours = list(node.neighbours.keys())
+                node_neighbours.sort(key=lambda n: len(n.neighbours), reverse=True)
+
+                for n in node_neighbours:
+                    if not node_dict[n]:
+                        continue
+                    
+                    if find_tour(n):
+                        return True 
+                
+                return True
+
+            find_tour(node)
+
+            all_tours.append(tour)
+
+        count_edge = 0
+
+        for i in range(1, len(all_tours)):
+            self.add_edge(all_tours[i-1][-1], all_tours[i][0], 1.0)
+            count_edge += 1
+
+        self.add_edge(all_tours[-1][-1], all_tours[0][0], 1.0)
+        count_edge += 1
+
+        return all_tours, count_edge
 
     # Получение узла по имени
     def get_node_by_name(self, name: str) -> Node:

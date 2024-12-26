@@ -41,13 +41,20 @@ def draw_board(board, cols: int, rows: int) -> None:
 
 def display_winner(player: int) -> None:
     # Отображение сообщения о победителе
+    font = pygame.font.SysFont("monospace", 75)
+    font.set_bold(True)
+
     text = ""
     if player == 2:
         text = "Игрок"
-    else: 
+    elif player == 1: 
         text = "Компьютер"
-    font = pygame.font.SysFont("monospace", 75)
-    font.set_bold(True)
+    elif player == -1:
+        text = "Ничья"
+        label = font.render(text, True, GREEN)
+        screen.blit(label, (WIDTH // 5, HEIGHT // 3))
+        return
+    
     label = font.render(text, True, GREEN)
     screen.blit(label, (WIDTH // 5, HEIGHT // 3))
     label1 = font.render("победил!", True, GREEN)
@@ -80,7 +87,6 @@ def play_game(depth: int) -> None:
         if turn == 1:
             display_move(0, True)
             pygame.display.update()
-
             col = ab.check_winning_move(ab.board)
             if col == -1:
                 col, _ = ab.alpha_beta(ab.board, depth=depth)
@@ -92,8 +98,6 @@ def play_game(depth: int) -> None:
                 if ab.winning_move(ab.board, 2):
                     print("Компьютер выиграл!")
                     game_over = True
-
-                print(ab.board)
 
                 comp_move = col
                 
@@ -142,7 +146,19 @@ def play_game(depth: int) -> None:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         is_break = True
+        
+        if not ab.check_draw(ab.board):
+            game_over = True
+
+            draw_board(ab.board, ab.cols, ab.rows)
+            display_winner(-1)
+            pygame.display.update()
+
+            while not is_break:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        is_break = True
 
 if __name__ == "__main__":
-    depth = 7
+    depth = 6
     play_game(depth)
